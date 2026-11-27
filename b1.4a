@@ -1,0 +1,68 @@
+package b41;
+
+import java.util.Arrays;
+
+interface Sorter {
+	int[] sort(int[] arr);
+}
+
+class LegacySorter {
+
+	public int[] quickSort(int[] arr) {
+		int[] result = arr.clone();
+		quickSortHelper(result, 0, result.length - 1);
+		return result;
+	}
+
+	private void quickSortHelper(int[] arr, int low, int high) {
+		if (low < high) {
+			int pivot = arr[high];
+			int i = low - 1;
+
+			for (int j = low; j < high; j++) {
+				if (arr[j] <= pivot) {
+					i++;
+					int temp = arr[i];
+					arr[i] = arr[j];
+					arr[j] = temp;
+				}
+			}
+
+			int temp = arr[i + 1];
+			arr[i + 1] = arr[high];
+			arr[high] = temp;
+
+			int pi = i + 1;
+
+			quickSortHelper(arr, low, pi - 1);
+			quickSortHelper(arr, pi + 1, high);
+		}
+	}
+}
+
+class SorterAdapter implements Sorter {
+
+	private LegacySorter legacySorter;
+
+	public SorterAdapter(LegacySorter legacySorter) {
+		this.legacySorter = legacySorter;
+	}
+
+	@Override
+	public int[] sort(int[] arr) {
+		return legacySorter.quickSort(arr);
+	}
+}
+
+class AdapterMain {
+
+	public static void run() {
+		int[] arr = { 5, 2, 8, 1, 9, 3 };
+
+		Sorter sorter = new SorterAdapter(new LegacySorter());
+
+		int[] result = sorter.sort(arr);
+
+		System.out.println("Mang sau khi sap xep: " + Arrays.toString(result));
+	}
+}
