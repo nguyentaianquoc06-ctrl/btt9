@@ -1,0 +1,195 @@
+package b5;
+
+import java.util.ArrayList;
+import java.util.List;
+
+class Logger {
+
+	private static Logger instance;
+
+	private Logger() {
+	}
+
+	public static synchronized Logger getInstance() {
+		if (instance == null) {
+			instance = new Logger();
+		}
+		return instance;
+	}
+
+	public void log(String message) {
+		System.out.println("[LOG]: " + message);
+	}
+}
+
+interface Export {
+	void exportFile();
+}
+
+class PdfExport implements Export {
+
+	@Override
+	public void exportFile() {
+		System.out.println("Exporting PDF file...");
+	}
+}
+
+class ExcelExport implements Export {
+
+	@Override
+	public void exportFile() {
+		System.out.println("Exporting Excel file...");
+	}
+}
+
+abstract class ExportFactory {
+	public abstract Export createExport();
+}
+
+class PdfFactory extends ExportFactory {
+
+	@Override
+	public Export createExport() {
+		return new PdfExport();
+	}
+}
+
+class ExcelFactory extends ExportFactory {
+
+	@Override
+	public Export createExport() {
+		return new ExcelExport();
+	}
+}
+
+interface Player {
+	void play(String name);
+}
+
+class OldPlayer {
+
+	void playFile(String name) {
+		System.out.println("Playing old file: " + name);
+	}
+}
+
+class PlayerAdapter implements Player {
+
+	private OldPlayer oldPlayer;
+
+	public PlayerAdapter(OldPlayer oldPlayer) {
+		this.oldPlayer = oldPlayer;
+	}
+
+	@Override
+	public void play(String name) {
+		oldPlayer.playFile(name);
+	}
+}
+
+class AppConfig implements Cloneable {
+
+	private String appName;
+	private String theme;
+	private List<String> options;
+
+	public AppConfig(String appName, String theme, List<String> options) {
+		this.appName = appName;
+		this.theme = theme;
+		this.options = new ArrayList<>(options);
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+
+	public void setTheme(String theme) {
+		this.theme = theme;
+	}
+
+	public void addOption(String option) {
+		options.add(option);
+	}
+
+	@Override
+	public AppConfig clone() {
+		try {
+			AppConfig copy = (AppConfig) super.clone();
+
+			copy.options = new ArrayList<>(this.options);
+
+			return copy;
+
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	public void display() {
+		System.out.println("App Name: " + appName);
+		System.out.println("Theme: " + theme);
+		System.out.println("Options: " + options);
+	}
+}
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		System.out.println("===== SINGLETON =====");
+
+		Logger logger1 = Logger.getInstance();
+		Logger logger2 = Logger.getInstance();
+
+		logger1.log("Hello Singleton!");
+
+		System.out.println("Logger 1: " + logger1.hashCode());
+		System.out.println("Logger 2: " + logger2.hashCode());
+
+		System.out.println("Same object: " + (logger1 == logger2));
+
+		System.out.println("\n===== FACTORY METHOD =====");
+
+		ExportFactory pdfFactory = new PdfFactory();
+		Export pdf = pdfFactory.createExport();
+		pdf.exportFile();
+
+		ExportFactory excelFactory = new ExcelFactory();
+		Export excel = excelFactory.createExport();
+		excel.exportFile();
+
+		System.out.println("\n===== ADAPTER =====");
+
+		OldPlayer oldPlayer = new OldPlayer();
+
+		Player player = new PlayerAdapter(oldPlayer);
+
+		player.play("music.mp3");
+
+		System.out.println("\n===== PROTOTYPE =====");
+
+		List<String> options = new ArrayList<>();
+		options.add("Notification");
+		options.add("Auto Save");
+
+		AppConfig original = new AppConfig("My Application", "Light", options);
+
+		AppConfig copy1 = original.clone();
+		AppConfig copy2 = original.clone();
+
+		copy1.setTheme("Dark");
+		copy1.setAppName("Application 1");
+
+		copy2.setTheme("Blue");
+		copy2.addOption("Backup");
+
+		System.out.println("\nOriginal:");
+		original.display();
+
+		System.out.println("\nCopy 1:");
+		copy1.display();
+
+		System.out.println("\nCopy 2:");
+		copy2.display();
+	}
+}
