@@ -1,0 +1,60 @@
+package b1;
+
+class AppConfig {
+
+	private String appName;
+	private String version;
+	private String logLevel;
+	private static volatile AppConfig instance;
+
+	private AppConfig() {
+		appName = "MyApplication";
+		version = "1.0";
+		logLevel = "INFO";
+	}
+
+	public static AppConfig getInstance() {
+
+		if (instance == null) {
+			synchronized (AppConfig.class) {
+
+				if (instance == null) {
+					instance = new AppConfig();
+				}
+			}
+		}
+
+		return instance;
+	}
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public String getLogLevel() {
+		return logLevel;
+	}
+}
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		Thread t1 = new Thread(() -> {
+			AppConfig config = AppConfig.getInstance();
+			System.out.println("Thread 1: " + config.hashCode());
+		});
+
+		Thread t2 = new Thread(() -> {
+			AppConfig config = AppConfig.getInstance();
+			System.out.println("Thread 2: " + config.hashCode());
+		});
+
+		t1.start();
+		t2.start();
+	}
+}
